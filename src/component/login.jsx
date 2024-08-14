@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import IndexPageImg from "../assets/pomo2.jpg"
+import IndexPageImg from "../assets/pomo1.jpg"
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
