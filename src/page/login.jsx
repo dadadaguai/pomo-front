@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 // 插入组件
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button.jsx";
+import { Input } from "@/components/ui/input.jsx";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card.jsx";
 import {
     Dialog,
     DialogContent,
@@ -10,9 +10,9 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@/components/ui/dialog.jsx";
+import { Label } from "@/components/ui/label.jsx";
+import { Checkbox } from "@/components/ui/checkbox.jsx";
 // 导入图片。
 import IndexPageImg from "../assets/pomo1.jpg"
 // 导入路由库。

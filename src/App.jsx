@@ -4,8 +4,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import '@/app/globals.css'
-import LoginPage from './component/login.jsx'
-import HomePage from "./component/homepage.jsx";
+import LoginPage from './page/login.jsx'
+import HomePage from "./page/homepage.jsx";
 
 function App() {
 
