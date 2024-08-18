@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// 插入组件
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
@@ -12,7 +13,12 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+// 导入图片。
 import IndexPageImg from "../assets/pomo1.jpg"
+// 导入路由库。
+import { useNavigate } from 'react-router-dom';
+
+
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -23,9 +29,12 @@ const LoginPage = () => {
     const [registerEmail, setRegisterEmail] = useState('');
     const [rememberPassword, setRememberPassword] = useState(false);
 
+    const navigate = useNavigate();
     const handleLogin = (e) => {
         e.preventDefault();
         console.log('Login:', { username, password, rememberPassword });
+        // 跳转页面
+        navigate('/home');
     };
 
     const handleRegister = (e) => {
