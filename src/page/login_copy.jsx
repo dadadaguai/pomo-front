@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// 插入组件
 import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card.jsx";
@@ -12,10 +13,10 @@ import {
 } from "@/components/ui/dialog.jsx";
 import { Label } from "@/components/ui/label.jsx";
 import { Checkbox } from "@/components/ui/checkbox.jsx";
-import IndexPageImg from "../assets/pomo1.jpg";
+// 导入图片。
+import IndexPageImg from "../assets/pomo1.jpg"
+// 导入路由库。
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext.jsx'; // 确保路径正确
-import { toast } from 'react-hot-toast'; // 假设使用 react-hot-toast 进行通知
 
 
 
@@ -29,47 +30,28 @@ const LoginPage = () => {
     const [rememberPassword, setRememberPassword] = useState(false);
 
     const navigate = useNavigate();
-    const { login, register } = useAuth();
-
-    const handleLogin = async (e) => {
+    const handleLogin = (e) => {
         e.preventDefault();
-        try {
-            const success = await login(username, password);
-            if (success) {
-                toast.success('登录成功');
-                navigate('/home');
-            } else {
-                toast.error('登录失败，请检查用户名和密码');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            toast.error('登录时发生错误');
-        }
+        console.log('Login:', { username, password, rememberPassword });
+        // 跳转页面
+        navigate('/home');
     };
 
-
-    const handleRegister = async (e) => {
+    const handleRegister = (e) => {
         e.preventDefault();
-        try {
-            const success = await register(registerUsername, registerPassword, registerEmail);
-            if (success) {
-                toast.success('注册成功，请登录');
-                setIsRegisterOpen(false);
-            } else {
-                toast.error('注册失败，请稍后重试');
-            }
-        } catch (error) {
-            console.error('Register error:', error);
-            toast.error('注册时发生错误');
-        }
+        console.log('Register:', { registerUsername, registerPassword, registerEmail });
+        setIsRegisterOpen(false);
     };
 
     const handleForgotPassword = () => {
-        toast.info('忘记密码功能暂未实现');
+        console.log('Forgot password clicked');
+        // 实现忘记密码功能
     };
+
     return (
         <div className="flex h-screen">
             <div className="w-2/3 bg-gray-200">
+                {/* 这里放置您的图片 */}
                 <img src={IndexPageImg} alt="Login background" className="w-full h-full object-cover" />
             </div>
             <div className="w-1/3 flex items-center justify-center bg-white">
