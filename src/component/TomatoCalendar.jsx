@@ -41,7 +41,7 @@ const TomatoCalendar = () => {
 
     return (
         <div className="flex flex-col items-center my-4">
-            <h2 className="text-2xl font-bold mb-4">Hello,接着加油！</h2>
+            {/*<h2 className="text-2xl font-bold mb-4">Hello,接着加油！</h2>*/}
             <div className="text-lg mb-2 my-2">
                 <Badge variant="secondary" className="mx-8">今日番茄: {todayTomatoes}</Badge>
                 <Badge variant="secondary" className="mx-8">连续天数: {currentStreak}</Badge>
