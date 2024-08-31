@@ -3,9 +3,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescript
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Play, RotateCcw , Check } from 'lucide-react';
-
-import { Label } from "@radix-ui/react-label";
+import { Play, Pause, RotateCcw } from 'lucide-react';
+import {Label} from "@radix-ui/react-label";
 
 const PomodoroTimer = () => {
     const [time, setTime] = useState(25 * 60);
@@ -29,11 +28,6 @@ const PomodoroTimer = () => {
         return () => clearInterval(interval);
     }, [isRunning, time]);
 
-    useEffect(() => {
-        setTime(customTime * 60);
-        setInitialTime(customTime * 60);
-    }, [customTime]);
-
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
@@ -41,68 +35,61 @@ const PomodoroTimer = () => {
     };
 
     const toggleTimer = () => {
-        if (isRunning) {
-            setIsRunning(false);
-            setTime(initialTime);
-        } else {
-            setIsRunning(true);
+        if (!isRunning) {
+            setInitialTime(customTime * 60);
+            setTime(customTime * 60);
         }
+        setIsRunning(!isRunning);
     };
 
-    const completeTimer = () => {
+    const resetTimer = () => {
         setIsRunning(false);
-        setShowSummaryModal(true);
+        setTime(initialTime);
     };
 
     const handleSummarySubmit = () => {
         setCompletedPomodoros([...completedPomodoros, { duration: initialTime / 60, summary }]);
         setShowSummaryModal(false);
         setSummary('');
-        setTime(initialTime);
+        resetTimer();
     };
 
     const handleCustomTimeChange = (e) => {
-        let value = parseInt(e.target.value);
-        if (isNaN(value)) {
-            value = 25; // 默认值
-        } else if (value < 20) {
-            value = 20; // 最小值
-        } else if (value > 60) {
-            value = 60; // 最大值
+        const value = parseInt(e.target.value);
+        if (!isNaN(value) && value > 0) {
+            setCustomTime(value);
         }
-        setCustomTime(value);
     };
 
     const progress = ((initialTime - time) / initialTime) * 100;
 
     return (
-        <div className="p-6 max-w-md mx-auto flex flex-col items-center w-full">
+        <div className="p-6 max-w-md mx-auto flex flex-col items-center w-full bg-amber-100">
             <div className="text-8xl font-bold mb-8">
                 {formatTime(time)}
             </div>
             <div className="w-full flex flex-col space-y-2 mb-4">
                 <Progress value={progress} className="w-full h-2"/>
                 <div className="flex justify-between space-x-2">
-                    <Button onClick={toggleTimer} size="sm" className="w-1/2">
-                        {isRunning ? <RotateCcw className="mr-2 h-4 w-4"/>: <Play className="mr-2 h-4 w-4"/>}
-                        {isRunning ? '重置' : '开始'}
+                    <Button onClick={toggleTimer} size="sm" className="w-1/3">
+                        {isRunning ? <Pause className="mr-2 h-4 w-4"/> : <Play className="mr-2 h-4 w-4"/>}
+                        {isRunning ? '暂停' : '开始'}
                     </Button>
-                    <Button onClick={completeTimer} size="sm" className="w-1/2">
-                        <Check className="mr-2 h-4 w-4"/> 立即完成
+                    <Button onClick={resetTimer} size="sm" className="w-1/3">
+                        <RotateCcw className="mr-2 h-4 w-4"/> 重置
                     </Button>
                 </div>
             </div>
-            <div className="flex flex-row items-center space-x-2 w-full">
-                <Label htmlFor="customTime">时间设置：</Label>
+            <div className="flex flex-row items-center space-x-2">
+                <Label htmlFor="terms">番茄：</Label>
                 <Input
-                    id="customTime"
                     type="number"
                     value={customTime}
                     onChange={handleCustomTimeChange}
-                    className="mb-1 text-center w-2/3"
-                    placeholder="20-60分钟"
-                    disabled={isRunning}
+                    className="mb-1 text-center w-1/4"
+                    placeholder="设置番茄钟时间（分钟）"
                 />
+                <Label htmlFor="terms">分钟</Label>
             </div>
 
             <AlertDialog open={showSummaryModal} onOpenChange={setShowSummaryModal}>
