@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Play, RotateCcw , Check } from 'lucide-react';
-
 import { Label } from "@radix-ui/react-label";
+import { generateUUID} from "@/src/utils/uuid.js";
 
 const PomodoroTimer = () => {
     const [time, setTime] = useState(25 * 60);
@@ -15,62 +15,86 @@ const PomodoroTimer = () => {
     const [summary, setSummary] = useState('');
     const [completedPomodoros, setCompletedPomodoros] = useState([]);
     const [customTime, setCustomTime] = useState(25);
+    const [uuid, setUuid] = useState('');
 
+// 定义一个useEffect钩子，用于设置和清理计时器
     useEffect(() => {
-        let interval = null;
+        let interval = null; // 定义一个变量来存储计时器的ID
         if (isRunning && time > 0) {
-            interval = setInterval(() => {
-                setTime((prevTime) => prevTime - 1);
-            }, 1000);
+            interval = setInterval(() => { // 如果计时器正在运行且时间大于0，则设置一个每秒减少time的计时器
+                setTime((prevTime) => prevTime - 1); // 每次计时器触发时，减少1秒
+            }, 1000); // 计时器每秒触发一次
         } else if (time === 0) {
-            setIsRunning(false);
-            setShowSummaryModal(true);
+            setIsRunning(false); // 如果时间到达0，停止计时器
+            setShowSummaryModal(true); // 显示总结模态框
         }
-        return () => clearInterval(interval);
-    }, [isRunning, time]);
+        return () => clearInterval(interval); // 组件卸载时清理计时器
+    }, [isRunning, time]); // 依赖项列表，当isRunning或time变化时，重新执行这个useEffect
 
+// 定义另一个useEffect钩子，用于初始化计时器的时间
     useEffect(() => {
-        setTime(customTime * 60);
-        setInitialTime(customTime * 60);
-    }, [customTime]);
+        setTime(customTime * 60); // 将自定义时间（分钟）转换为秒，并设置为计时器的初始时间
+        setInitialTime(customTime * 60); // 同时设置初始时间为自定义时间
+    }, [customTime]); // 当customTime变化时，重新执行这个useEffect
 
+// 定义一个formatTime函数，用于格式化时间显示
     const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        const minutes = Math.floor(seconds / 60); // 将秒数转换为分钟
+        const remainingSeconds = seconds % 60; // 获取剩余的秒数
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`; // 返回格式化的时间字符串，确保分钟和秒数都是两位数
     };
 
+// 定义一个toggleTimer函数，用于开始或停止计时器
     const toggleTimer = () => {
         if (isRunning) {
-            setIsRunning(false);
-            setTime(initialTime);
+            setIsRunning(false); // 如果计时器正在运行，停止它
+            setTime(initialTime); // 并将时间重置为初始时间
         } else {
-            setIsRunning(true);
+            let newTomoUuid = generateUUID();
+            console.log(newTomoUuid);
+            setIsRunning(true); // 如果计时器已停止，开始它
         }
     };
 
+// 定义一个completeTimer函数，用于完成计时器
     const completeTimer = () => {
-        setIsRunning(false);
-        setShowSummaryModal(true);
+        setIsRunning(false); // 停止计时器
+        setShowSummaryModal(true); // 显示总结模态框
     };
-
-    const handleSummarySubmit = () => {
-        setCompletedPomodoros([...completedPomodoros, { duration: initialTime / 60, summary }]);
-        setShowSummaryModal(false);
-        setSummary('');
-        setTime(initialTime);
-    };
-
-    const handleCustomTimeChange = (e) => {
-        let value = parseInt(e.target.value);
-        if (isNaN(value)) {
-            value = 25; // 默认值
-        } else if (value < 20) {
-            value = 20; // 最小值
-        } else if (value > 60) {
-            value = 60; // 最大值
+    // 用于在番茄钟的过程中，点击记录来进行一次暂时的笔记记录。
+    const handleSummaryChange = () => {
+        if (isRunning && time > 0) {
+            setShowSummaryModal(true); // 显示模态框
         }
-        setCustomTime(value);
+    }
+    // 处理暂存时的笔记记录提交的函数
+    const handleStagingSummarySubmit  = () => {
+        setCompletedPomodoros([...completedPomodoros, { duration: initialTime / 60, summary }]); // 将完成的番茄钟信息添加到已完成列表中
+        setShowSummaryModal(false); // 关闭总结模态框
+    }
+// 定义一个handleSummarySubmit函数，用于处理总结模态框的提交
+    const handleSummarySubmit = () => {
+        setCompletedPomodoros([...completedPomodoros, { duration: initialTime / 60, summary }]); // 将完成的番茄钟信息添加到已完成列表中
+        setShowSummaryModal(false); // 关闭总结模态框
+        if (isRunning && time > 0) {
+            handleStagingSummarySubmit()
+        }else {
+            setSummary(''); // 清空总结文本
+            setTime(initialTime); // 重置计时器时间
+        }
+    };
+
+// 定义一个handleCustomTimeChange函数，用于处理自定义时间的输入变化
+    const handleCustomTimeChange = (e) => {
+        let value = parseInt(e.target.value); // 获取输入框的值并转换为整数
+        if (isNaN(value)) {
+            value = 25; // 如果输入无效，则设置默认值为25分钟
+        } else if (value < 20) {
+            value = 1; // 如果输入值小于20，则设置最小值为20分钟
+        } else if (value > 60) {
+            value = 60; // 如果输入值大于60，则设置最大值为60分钟
+        }
+        setCustomTime(value); // 设置自定义时间为输入的值
     };
 
     const progress = ((initialTime - time) / initialTime) * 100;
@@ -86,6 +110,9 @@ const PomodoroTimer = () => {
                     <Button onClick={toggleTimer} size="sm" className="w-1/2">
                         {isRunning ? <RotateCcw className="mr-2 h-4 w-4"/>: <Play className="mr-2 h-4 w-4"/>}
                         {isRunning ? '重置' : '开始'}
+                    </Button>
+                    <Button onClick={handleSummaryChange} size="sm" className="w-1/2">
+                        <Check className="mr-2 h-4 w-4"/> 记录
                     </Button>
                     <Button onClick={completeTimer} size="sm" className="w-1/2">
                         <Check className="mr-2 h-4 w-4"/> 立即完成
