@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+    AlertDialog,
+    AlertDialogAction, AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -13,9 +21,9 @@ const PomodoroTimer = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [summary, setSummary] = useState('');
-    const [completedPomodoros, setCompletedPomodoros] = useState([]);
     const [customTime, setCustomTime] = useState(25);
-    const [uuid, setUuid] = useState('');
+    const [isFinished, setIsFinished] = useState(true);
+    const [showResetAlert, setShowResetAlert] = useState(false);
 
 // 定义一个useEffect钩子，用于设置和清理计时器
     useEffect(() => {
@@ -47,15 +55,43 @@ const PomodoroTimer = () => {
 // 定义一个toggleTimer函数，用于开始或停止计时器
     const toggleTimer = () => {
         if (isRunning) {
-            setIsRunning(false); // 如果计时器正在运行，停止它
-            setTime(initialTime); // 并将时间重置为初始时间
-        } else {
-            let newTomoUuid = generateUUID();
-            console.log(newTomoUuid);
+            // 重置操作
+            setIsRunning(false); // 如果计时器正在运行，先停止它
+            if( summary.length === 0 &&  progress <= 40 ){ // 判断无笔记且进度小于40%，直接进行重置。
+                setTime(initialTime); // 并将时间重置为初始时间
+                setIsFinished(true); // 设置完成的默认值
+                setSummary(''); // 设置笔记为空
+            }else {
+                setShowResetAlert(true);
+            }
+        }
+        else {
+            let newPomodoroUuid = generateUUID(); // 创建一个番茄事例的uuid
+            let currentTime = new Date(); // 获取当前的开始时间
+            let sessionPomodoroData = {
+                uuid: newPomodoroUuid,
+                initTime: initialTime,
+                startTime: currentTime,
+            }
             setIsRunning(true); // 如果计时器已停止，开始它
+            sessionStorage.setItem('pomodoroSession', JSON.stringify(sessionPomodoroData));
+            let sessionSummaryData = {
+                summary: summary,
+                pomodoro_uuid:newPomodoroUuid,
+            }
+            sessionStorage.setItem('summarySession', JSON.stringify(sessionSummaryData));
         }
     };
 
+    // 定义重置提醒后点击继续的函数
+    const handleResetContinued = () => {
+        setIsFinished(false); // 设置未完成
+        setShowSummaryModal(true); // 显示模态框
+    }
+    // 定义重置提醒后点击取消的函数
+    const handleResetCancel = () => {
+        setIsRunning(true);
+    }
 // 定义一个completeTimer函数，用于完成计时器
     const completeTimer = () => {
         setIsRunning(false); // 停止计时器
@@ -69,18 +105,21 @@ const PomodoroTimer = () => {
     }
     // 处理暂存时的笔记记录提交的函数
     const handleStagingSummarySubmit  = () => {
-        setCompletedPomodoros([...completedPomodoros, { duration: initialTime / 60, summary }]); // 将完成的番茄钟信息添加到已完成列表中
-        setShowSummaryModal(false); // 关闭总结模态框
+        let summarySessionData = JSON.parse(sessionStorage.getItem('summarySession'));
+        summarySessionData.summary = summary;
+        sessionStorage.setItem('summarySession', JSON.stringify(summarySessionData));
     }
 // 定义一个handleSummarySubmit函数，用于处理总结模态框的提交
     const handleSummarySubmit = () => {
-        setCompletedPomodoros([...completedPomodoros, { duration: initialTime / 60, summary }]); // 将完成的番茄钟信息添加到已完成列表中
         setShowSummaryModal(false); // 关闭总结模态框
         if (isRunning && time > 0) {
-            handleStagingSummarySubmit()
+            handleStagingSummarySubmit();
         }else {
+
+            // 发送后端请求。
             setSummary(''); // 清空总结文本
             setTime(initialTime); // 重置计时器时间
+            setIsFinished(true);
         }
     };
 
@@ -143,12 +182,26 @@ const PomodoroTimer = () => {
                     <textarea
                         value={summary}
                         onChange={(e) => setSummary(e.target.value)}
-                        placeholder="输入总结..."
+                        placeholder="输入总结内容(可为空)..."
                         rows={4}
                         className="w-full p-2 border rounded"
                     />
                     <AlertDialogFooter>
                         <AlertDialogAction onClick={handleSummarySubmit}>提交</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={showResetAlert} onOpenChange={setShowResetAlert}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogDescription>
+                            在当前番茄钟的过程中，你已经完成了{progress.toFixed(2)}%，{summary.length > 0 ? '并且记录了学习过程中的部分笔记，':''}是否确定要关闭当前的番茄钟吗？是请点击继续，否请点击取消。
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={handleResetCancel}>取消</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleResetContinued}>继续</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
