@@ -51,7 +51,28 @@ const PomodoroTimer = () => {
         const remainingSeconds = seconds % 60; // 获取剩余的秒数
         return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`; // 返回格式化的时间字符串，确保分钟和秒数都是两位数
     };
+// 定义添加番茄钟的请求
+    const addNormalPomodoro = async (pomodoroSession) => {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/pomodoro_service/add_normal_pomodoro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // 设置请求头为JSON
+                },
+                body: pomodoroSession,
+                credentials: 'include' // 包括cookies
+            });
 
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Pomodoro added successfully:', data);
+            } else {
+                console.error('Failed to add pomodoro:', response.status, await response.text());
+            }
+        } catch (error) {
+            console.error('Error adding pomodoro:', error);
+        }
+    };
 // 定义一个toggleTimer函数，用于开始或停止计时器
     const toggleTimer = () => {
         if (isRunning) {
@@ -66,6 +87,7 @@ const PomodoroTimer = () => {
             }
         }
         else {
+            // 开始操作
             let newPomodoroUuid = generateUUID(); // 创建一个番茄事例的uuid
             let currentTime = new Date(); // 获取当前的开始时间
             let sessionPomodoroData = {
@@ -111,12 +133,24 @@ const PomodoroTimer = () => {
     }
 // 定义一个handleSummarySubmit函数，用于处理总结模态框的提交
     const handleSummarySubmit = () => {
+        const endTime =  new Date();
+
         setShowSummaryModal(false); // 关闭总结模态框
         if (isRunning && time > 0) {
             handleStagingSummarySubmit();
         }else {
+            // 获取要提交番茄事例的创建时间、结束时间、持续时间、是否完成、总结文本。
+            let s_t = new Date(JSON.parse(sessionStorage.getItem('pomodoroSession')).startTime)
 
             // 发送后端请求。
+            let pomodoroSession = JSON.stringify({
+                StartTime: s_t, // 开始时间，ISO 8601格式
+                EndTime: endTime, // 结束时间，ISO 8601格式
+                Duration: initialTime, // 持续时间，单位为毫秒
+                Completed: isFinished, // 是否完成
+                SummaryText: summary // 番茄钟总结文本
+            });
+            addNormalPomodoro(pomodoroSession).then(r => console.log(r))
             setSummary(''); // 清空总结文本
             setTime(initialTime); // 重置计时器时间
             setIsFinished(true);

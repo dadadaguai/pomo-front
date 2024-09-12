@@ -1,8 +1,11 @@
 import React from 'react';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { User, UserCircle, Edit, Settings, LogOut } from "lucide-react";
-
-const UserNavigationMenu = ({ username = "dadadaguai", onLogout }) => {
+import {useAuth} from "@/src/contexts/AuthContext.jsx";
+import Cookies from 'js-cookie';
+const UserNavigationMenu = ({  onLogout }) => {
+    const { user } = useAuth();
+    const username = user?user.username:Cookies.get('username');
     return (
         <NavigationMenu>
             <NavigationMenuList>

@@ -1,32 +1,44 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-
 const AuthContext = createContext(null);
-
+import Cookies from 'js-cookie';
 // eslint-disable-next-line react/prop-types
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-
     useEffect(() => {
-        checkAuth();
+        checkAuth().then(r => console.log(r));
     }, []);
 
     const checkAuth = async () => {
-        try {
-            const response = await fetch('http://127.0.0.1:5000/auth/user', {
-                credentials: 'include'
-            });
-            if (response.ok) {
-                const userData = await response.json();
-                setUser(userData);
+        const token = Cookies.get('access_token');
+        if(token){
+            try {
+                const response = await fetch('http://127.0.0.1:5000/auth/user', {
+                    method: 'POST',
+                    body: JSON.stringify({ token }),
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    withCredentials: true
+                });
+                if (response.ok) {
+                    console.log('验证成功');
+                    console.log(response.json());
+                } else {
+                    console.error('没成功')
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
             }
-        } catch (error) {
-            console.error('Auth check failed:', error);
+            // setUser({token});
+        }else {
+            console.log('why')
+            // navigate('/login')
         }
+
     };
 
     const login = async (username, password) => {
         try {
-            const response = await fetch('http://127.0.0.1:5000/auth/login', {
+            const response = await fetch('http://127.0.0.1:5000/api/user_service/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
@@ -35,7 +47,12 @@ export const AuthProvider = ({ children }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                setUser({ id: data.user_id });
+                // 将id和username放进AuthContext中。
+                Cookies.set('access_token', data.access_token);
+                Cookies.set('username',data.username);
+                Cookies.set('u_id',data.user_id);
+                setUser({ id: data.user_id ,
+                                username:data.username});
                 return true;
             }
             return false;
@@ -61,7 +78,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (username, password, email) => {
         try {
-            const response = await fetch('http://127.0.0.1:5000/auth/register', {
+            const response = await fetch('http://127.0.0.1:5000/api/user_service/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password, email }),

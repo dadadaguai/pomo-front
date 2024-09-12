@@ -16,8 +16,8 @@ function App() {
           <Toaster />
           <Router>
               <Routes>
+                  <Route path="/" element={<HomePage />} />
                   <Route path="/login" element={<LoginPage />} />
-                  <Route path="/home" element={<HomePage />} />
               </Routes>
           </Router>
       </AuthProvider>

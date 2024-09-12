@@ -27,22 +27,25 @@ const LoginPage = () => {
     const [registerPassword, setRegisterPassword] = useState('');
     const [registerEmail, setRegisterEmail] = useState('');
     const [rememberPassword, setRememberPassword] = useState(false);
-
+    const { user, login, register } = useAuth();
     const navigate = useNavigate();
-    const { login, register } = useAuth();
 
+    // 处理登录成功的结果，并跳转页面。
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
             const success = await login(username, password);
             if (success) {
-                toast.success('登录成功');
-                navigate('/home');
+                // 跳转页面
+                navigate('/')
+                toast.success(' 登录成功');
+
             } else {
                 toast.error('登录失败，请检查用户名和密码');
             }
+            // eslint-disable-next-line no-unused-vars
         } catch (error) {
-            console.error('Login error:', error);
+
             toast.error('登录时发生错误');
         }
     };
