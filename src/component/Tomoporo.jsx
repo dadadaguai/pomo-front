@@ -15,6 +15,7 @@ import { Play, RotateCcw , Check } from 'lucide-react';
 import { Label } from "@radix-ui/react-label";
 import { generateUUID} from "@/src/utils/uuid.js";
 import EnhancedTextarea from "@/src/component/EnhancedTextarea.jsx";
+import Cookies from 'js-cookie';
 
 const PomodoroTimer = () => {
     const [time, setTime] = useState(25 * 60);
@@ -142,9 +143,9 @@ const PomodoroTimer = () => {
         }else {
             // 获取要提交番茄事例的创建时间、结束时间、持续时间、是否完成、总结文本。
             let startTime = new Date(JSON.parse(sessionStorage.getItem('pomodoroSession')).startTime)
-
             // 发送后端请求。
             let pomodoroSession = JSON.stringify({
+                UserID:Cookies.get('userid'),
                 StartTime: startTime, // 开始时间，ISO 8601格式
                 EndTime: endTime, // 结束时间，ISO 8601格式
                 Duration: initialTime, // 持续时间，单位为毫秒

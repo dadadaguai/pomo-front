@@ -1,8 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const AuthContext = createContext(null);
 import Cookies from 'js-cookie';
+const AuthContext = createContext(null);
+
 // eslint-disable-next-line react/prop-types
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
                 // 将id和username放进AuthContext中。
                 Cookies.set('access_token', data.access_token);
                 Cookies.set('username',data.username);
-                Cookies.set('u_id',data.user_id);
+                Cookies.set('userid',data.user_id);
                 setUser({ id: data.user_id ,
                                 username:data.username});
                 return true;
