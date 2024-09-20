@@ -12,15 +12,16 @@ import {Toaster} from "react-hot-toast";
 function App() {
 
   return (
-      <AuthProvider>
-          <Toaster />
-          <Router>
-              <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/login" element={<LoginPage />} />
-              </Routes>
-          </Router>
-      </AuthProvider>
+      <Router>
+          <AuthProvider>
+              <Toaster />
+
+                  <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/login" element={<LoginPage />} />
+                  </Routes>
+          </AuthProvider>
+      </Router>
 
   )
 }

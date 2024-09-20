@@ -1,9 +1,13 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const AuthContext = createContext(null);
 import Cookies from 'js-cookie';
 // eslint-disable-next-line react/prop-types
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+
     useEffect(() => {
         checkAuth().then(r => console.log(r));
     }, []);
@@ -31,7 +35,7 @@ export const AuthProvider = ({ children }) => {
             // setUser({token});
         }else {
             console.log('why')
-            // navigate('/login')
+            navigate('/login')
         }
 
     };
