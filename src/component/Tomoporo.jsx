@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Play, RotateCcw , Check } from 'lucide-react';
 import { Label } from "@radix-ui/react-label";
 import { generateUUID} from "@/src/utils/uuid.js";
+import EnhancedTextarea from "@/src/component/EnhancedTextarea.jsx";
 
 const PomodoroTimer = () => {
     const [time, setTime] = useState(25 * 60);
@@ -140,11 +141,11 @@ const PomodoroTimer = () => {
             handleStagingSummarySubmit();
         }else {
             // 获取要提交番茄事例的创建时间、结束时间、持续时间、是否完成、总结文本。
-            let s_t = new Date(JSON.parse(sessionStorage.getItem('pomodoroSession')).startTime)
+            let startTime = new Date(JSON.parse(sessionStorage.getItem('pomodoroSession')).startTime)
 
             // 发送后端请求。
             let pomodoroSession = JSON.stringify({
-                StartTime: s_t, // 开始时间，ISO 8601格式
+                StartTime: startTime, // 开始时间，ISO 8601格式
                 EndTime: endTime, // 结束时间，ISO 8601格式
                 Duration: initialTime, // 持续时间，单位为毫秒
                 Completed: isFinished, // 是否完成
@@ -213,12 +214,20 @@ const PomodoroTimer = () => {
                             请总结这个番茄钟期间完成的工作：
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <textarea
+                    {/*<textarea*/}
+                    {/*    value={summary}*/}
+                    {/*    onChange={(e) => setSummary(e.target.value)}*/}
+                    {/*    placeholder="输入总结内容(可为空)..."*/}
+                    {/*    rows={4}*/}
+                    {/*    className="w-full p-2 border rounded"*/}
+                    {/*/>*/}
+                    <EnhancedTextarea
                         value={summary}
                         onChange={(e) => setSummary(e.target.value)}
                         placeholder="输入总结内容(可为空)..."
-                        rows={4}
+                        rows={10}
                         className="w-full p-2 border rounded"
+                        maxLength={800}
                     />
                     <AlertDialogFooter>
                         <AlertDialogAction onClick={handleSummarySubmit}>提交</AlertDialogAction>
